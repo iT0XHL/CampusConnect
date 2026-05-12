@@ -1,76 +1,208 @@
-# CampusConnect API
+# 🎓 CampusConnect API
 
-API REST académica universitaria construida con Node.js, Express, Prisma y PostgreSQL.
+> API REST académica para la Universidad Innovatec — gestión de cursos, tareas, calificaciones, materiales y notificaciones para 2,000 estudiantes activos.
 
-## Requisitos
+![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4.18-000000?style=flat&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat&logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-5.7-2D3748?style=flat&logo=prisma&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat&logo=docker&logoColor=white)
+![Railway](https://img.shields.io/badge/Deploy-Railway-0B0D0E?style=flat&logo=railway&logoColor=white)
 
-- Node.js 20+
-- Docker y Docker Compose (para setup con contenedores)
-- PostgreSQL 16+ (para setup local sin Docker)
+---
 
-## Setup local
+## 🏗️ Stack tecnológico
+
+| Capa | Tecnología |
+|---|---|
+| Runtime | Node.js 20 + Express.js |
+| Base de datos | PostgreSQL 16 + Prisma ORM |
+| Autenticación | JWT + bcrypt |
+| Contenedores | Docker + Docker Compose |
+| CI/CD | GitHub Actions → Railway |
+| Testing | Jest + Supertest |
+
+---
+
+## 🚀 Ejecución local
+
+### Requisitos previos
+
+- [Node.js 20+](https://nodejs.org)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+
+### Pasos
+
+**1. Clonar el repositorio e instalar dependencias**
 
 ```bash
-# 1. Clonar el repositorio
-git clone <repo-url>
+git clone https://github.com/TU_USUARIO/campusconnect.git
 cd campusconnect
-
-# 2. Instalar dependencias
 npm install
+```
 
-# 3. Configurar variables de entorno
+**2. Configurar variables de entorno**
+
+```bash
 cp .env.example .env
-# Editar .env con tus credenciales
+```
 
-# 4. Generar cliente Prisma y ejecutar migraciones
-npx prisma generate
-npx prisma migrate dev --name init
+Edita el `.env` y cambia `localhost` por `127.0.0.1` y el puerto a `5433` si tienes otro PostgreSQL corriendo:
 
-# 5. Cargar datos de prueba
+```env
+DATABASE_URL="postgresql://campususer:campuspassword@127.0.0.1:5433/campusconnect"
+JWT_SECRET="genera-uno-con-el-comando-de-abajo"
+JWT_EXPIRES_IN="7d"
+PORT=3000
+NODE_ENV=development
+LOG_LEVEL=info
+```
+
+Para generar un `JWT_SECRET` seguro:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**3. Levantar la base de datos con Docker**
+
+```bash
+docker-compose up -d db
+```
+
+> Si el puerto 5432 está ocupado por otra instancia, el `docker-compose.yml` ya está configurado para usar el **puerto 5433**.
+
+**4. Crear las tablas y cargar datos de prueba**
+
+```bash
+npx prisma db push
 npm run seed
+```
 
-# 6. Iniciar en modo desarrollo
+**5. Iniciar el servidor**
+
+```bash
 npm run dev
 ```
 
-La API estará disponible en `http://localhost:3000`.
+La API estará disponible en **http://localhost:3000**
+El frontend estará disponible en **http://localhost:3000** (abre el navegador)
 
-## Setup con Docker
+### Credenciales de prueba
+
+| Email | Password |
+|---|---|
+| `juan.perez@universidad.edu` | `password123` |
+| `maria.garcia@universidad.edu` | `password123` |
+
+---
+
+## 🐳 Docker completo (API + DB)
 
 ```bash
-# Copiar y ajustar variables de entorno
-cp .env.example .env
-
 # Levantar todos los servicios
 docker-compose up -d
 
-# Ver logs
+# Ver logs de la API
 docker-compose logs -f api
 
-# Ejecutar migraciones dentro del contenedor
-docker-compose exec api npx prisma migrate deploy
-docker-compose exec api npm run seed
+# Detener todo
+docker-compose down
 ```
 
-## Endpoints
+---
 
-| Método | Ruta                               | Auth | Descripción                                  |
-|--------|------------------------------------|------|----------------------------------------------|
-| GET    | `/health`                          | No   | Health check del servidor                    |
-| POST   | `/api/auth/login`                  | No   | Iniciar sesión, obtener JWT                  |
-| GET    | `/api/auth/me`                     | Sí   | Datos del usuario autenticado                |
-| GET    | `/api/cursos`                      | Sí   | Cursos activos del usuario                   |
-| GET    | `/api/tareas`                      | Sí   | Tareas pendientes (fechaEntrega >= hoy)      |
-| GET    | `/api/notas`                       | Sí   | Notas por curso con promedio                 |
-| GET    | `/api/materiales`                  | Sí   | Materiales de los cursos matriculados        |
-| GET    | `/api/materiales?cursoId=<id>`     | Sí   | Materiales filtrados por curso               |
-| GET    | `/api/notificaciones`              | Sí   | Notificaciones del usuario                   |
-| GET    | `/api/notificaciones?leida=false`  | Sí   | Notificaciones filtradas por estado de lectura |
-| PATCH  | `/api/notificaciones/:id/leer`     | Sí   | Marcar notificación como leída               |
+## ☁️ Despliegue en Railway
+
+### Requisitos
+- Cuenta en [Railway](https://railway.app)
+- Repositorio en GitHub
+
+### Paso 1 — Crear el proyecto en Railway
+
+1. Ve a [railway.app](https://railway.app) → **"New Project"**
+2. Selecciona **"Deploy from GitHub repo"** → autoriza Railway → selecciona el repo
+3. Railway detecta el `Dockerfile` automáticamente → clic en **"Deploy Now"**
+
+### Paso 2 — Agregar PostgreSQL
+
+En el proyecto Railway → **"+ New"** → **"Database"** → **"Add PostgreSQL"**
+
+Railway crea la BD e inyecta `DATABASE_URL` automáticamente en el servicio.
+
+### Paso 3 — Variables de entorno
+
+En el servicio de la API → pestaña **"Variables"**:
+
+| Variable | Valor |
+|---|---|
+| `DATABASE_URL` | Usar **"Add Reference"** → seleccionar Postgres → `DATABASE_URL` |
+| `JWT_SECRET` | Cadena aleatoria de 64 chars (ver comando arriba) |
+| `JWT_EXPIRES_IN` | `7d` |
+| `NODE_ENV` | `production` |
+| `LOG_LEVEL` | `info` |
+
+### Paso 4 — Renombrar el servicio
+
+Servicio API → **"Settings"** → **"Service Name"** → escribe `campusconnect-api`
+
+> Debe coincidir exactamente con el nombre en `.github/workflows/deploy.yml`
+
+### Paso 5 — Generar dominio público
+
+Servicio API → **"Settings"** → **"Networking"** → **"Generate Domain"** → selecciona el puerto detectado (`8080`)
+
+### Paso 6 — Configurar GitHub Secrets
+
+En GitHub → repo → **Settings** → **Secrets and variables** → **Actions**:
+
+| Secret | Valor |
+|---|---|
+| `RAILWAY_TOKEN` | Railway → avatar → Account Settings → Tokens → Create Token |
+| `RAILWAY_URL` | La URL generada en el paso anterior |
+
+### Paso 7 — Primer deploy con datos de prueba
+
+El primer deploy debe poblar la base de datos. Esto se hace automáticamente al hacer push a `main`. El pipeline de GitHub Actions:
+
+1. ✅ Corre los tests
+2. ✅ Auditoría de seguridad
+3. ✅ Despliega a Railway
+
+Railway al arrancar ejecuta `prisma db push` (crea las tablas) y luego inicia el servidor.
+
+### Paso 8 — Verificar el despliegue
+
+```bash
+curl https://TU-URL.up.railway.app/health
+# Respuesta: {"status":"ok","timestamp":"..."}
+```
+
+Abre `https://TU-URL.up.railway.app` en el navegador para ver el frontend.
+
+---
+
+## 📡 Endpoints
+
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| `GET` | `/health` | No | Health check |
+| `GET` | `/` | No | Frontend web |
+| `POST` | `/api/auth/login` | No | Login → JWT |
+| `GET` | `/api/auth/me` | Sí | Usuario autenticado |
+| `GET` | `/api/cursos` | Sí | Cursos activos del estudiante |
+| `GET` | `/api/tareas` | Sí | Tareas pendientes con días restantes |
+| `GET` | `/api/notas` | Sí | Notas por curso con promedio |
+| `GET` | `/api/materiales` | Sí | Materiales de los cursos matriculados |
+| `GET` | `/api/materiales?cursoId=<id>` | Sí | Materiales filtrados por curso |
+| `GET` | `/api/notificaciones` | Sí | Notificaciones del usuario |
+| `GET` | `/api/notificaciones?leida=false` | Sí | Notificaciones no leídas |
+| `PATCH` | `/api/notificaciones/:id/leer` | Sí | Marcar notificación como leída |
 
 ### Autenticación
 
-Los endpoints protegidos requieren el header:
+Todos los endpoints protegidos requieren el header:
+
 ```
 Authorization: Bearer <token>
 ```
@@ -83,7 +215,6 @@ curl -X POST http://localhost:3000/api/auth/login \
   -d '{"email":"juan.perez@universidad.edu","password":"password123"}'
 ```
 
-Respuesta:
 ```json
 {
   "data": {
@@ -99,49 +230,55 @@ Respuesta:
 }
 ```
 
-## Variables de entorno
+---
 
-| Variable        | Descripción                              | Ejemplo                        |
-|-----------------|------------------------------------------|--------------------------------|
-| `DATABASE_URL`  | URL de conexión a PostgreSQL             | `postgresql://user:pass@host/db` |
-| `JWT_SECRET`    | Secreto para firmar JWT (mín. 32 chars)  | `super-secret-key`             |
-| `JWT_EXPIRES_IN`| Tiempo de expiración del token           | `7d`                           |
-| `PORT`          | Puerto del servidor                      | `3000`                         |
-| `NODE_ENV`      | Entorno de ejecución                     | `development` / `production`   |
-| `LOG_LEVEL`     | Nivel de logging                         | `info` / `debug`               |
-
-## Correr tests
+## 🧪 Tests
 
 ```bash
-# Ejecutar todos los tests
+# Todos los tests
 npm test
 
-# Con coverage
+# Con reporte de cobertura
 npm test -- --coverage
 
 # Un archivo específico
-npm test -- auth.test.js
+npx jest src/__tests__/auth.test.js
 ```
 
-## Estructura del proyecto
+---
+
+## 📁 Estructura del proyecto
 
 ```
 campusconnect/
 ├── prisma/
-│   ├── schema.prisma       # Modelos de base de datos
-│   └── seed.js             # Datos de prueba
+│   ├── schema.prisma        # Modelos de base de datos
+│   └── seed.js              # Datos de prueba
+├── public/
+│   └── index.html           # Frontend web (servido por Express)
 ├── src/
-│   ├── __tests__/          # Tests con Jest + Supertest
-│   ├── controllers/        # Lógica de negocio por recurso
-│   ├── middlewares/        # Auth, validación, manejo de errores
-│   ├── routes/             # Definición de rutas Express
-│   ├── utils/              # Prisma singleton, logger Winston
-│   ├── app.js              # Configuración Express
-│   └── server.js           # Entry point
-├── nginx/
-│   └── nginx.conf          # Proxy reverso + TLS + rate limiting
+│   ├── __tests__/           # Tests con Jest + Supertest
+│   ├── controllers/         # Lógica de negocio por recurso
+│   ├── middlewares/         # Auth JWT, validación, manejo de errores
+│   ├── routes/              # Definición de rutas Express
+│   ├── utils/               # Prisma singleton, logger Winston
+│   ├── app.js               # Configuración Express
+│   └── server.js            # Entry point
 ├── .github/workflows/
-│   └── deploy.yml          # CI/CD con GitHub Actions → Railway
-├── Dockerfile
-└── docker-compose.yml
+│   └── deploy.yml           # CI/CD: GitHub Actions → Railway
+├── Dockerfile               # Imagen de producción
+└── docker-compose.yml       # Entorno local (API + PostgreSQL)
 ```
+
+---
+
+## 🔐 Variables de entorno
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| `DATABASE_URL` | Conexión a PostgreSQL | `postgresql://user:pass@host:5432/db` |
+| `JWT_SECRET` | Clave para firmar tokens (mín. 32 chars) | `a3f8c2d1...` |
+| `JWT_EXPIRES_IN` | Expiración del token | `7d` |
+| `PORT` | Puerto del servidor | `3000` |
+| `NODE_ENV` | Entorno | `development` / `production` |
+| `LOG_LEVEL` | Nivel de logs | `info` / `debug` |
