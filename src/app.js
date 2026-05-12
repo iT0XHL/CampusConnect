@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -13,6 +14,9 @@ const materialesRoutes = require('./routes/materiales.routes');
 const notificacionesRoutes = require('./routes/notificaciones.routes');
 
 const app = express();
+
+// Static frontend — before helmet so CSP doesn't block inline scripts
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use(helmet());
 app.use(cors());
