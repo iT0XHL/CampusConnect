@@ -15,6 +15,8 @@ const notificacionesRoutes = require('./routes/notificaciones.routes');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Static frontend — before helmet so CSP doesn't block inline scripts
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
