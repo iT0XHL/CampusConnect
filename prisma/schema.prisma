@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombres   String
+  apellidos String
+  email     String   @unique
+  password  String
+  codigo    String   @unique
+  creadoEn  DateTime @default(now())
+
+  matriculas     Matricula[]
+  notificaciones Notificacion[]
+}
+
+model Curso {
+  id            Int      @id @default(autoincrement())
+  codigo        String   @unique
+  nombre        String
+  creditos      Int
+  semestre      String
+  docenteNombre String
+  creadoEn      DateTime @default(now())
+
+  matriculas Matricula[]
+  tareas     Tarea[]
+  materiales Material[]
+}
+
+model Matricula {
+  id        Int             @id @default(autoincrement())
+  usuarioId Int
+  cursoId   Int
+  estado    EstadoMatricula @default(ACTIVA)
+  creadoEn  DateTime        @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  curso   Curso   @relation(fields: [cursoId], references: [id])
+  notas   Nota[]
+
+  @@unique([usuarioId, cursoId])
+}
+
+enum EstadoMatricula {
+  ACTIVA
+  INACTIVA
+  RETIRADA
+}
+
+model Tarea {
+  id           Int      @id @default(autoincrement())
+  cursoId      Int
+  titulo       String
+  descripcion  String?
+  fechaEntrega DateTime
+  creadoEn     DateTime @default(now())
+
+  curso Curso @relation(fields: [cursoId], references: [id])
+}
+
+model Nota {
+  id          Int      @id @default(autoincrement())
+  matriculaId Int
+  tipo        String
+  valor       Float
+  creadoEn    DateTime @default(now())
+
+  matricula Matricula @relation(fields: [matriculaId], references: [id])
+}
+
+model Material {
+  id       Int          @id @default(autoincrement())
+  cursoId  Int
+  nombre   String
+  tipo     TipoMaterial
+  url      String
+  creadoEn DateTime     @default(now())
+
+  curso Curso @relation(fields: [cursoId], references: [id])
+}
+
+enum TipoMaterial {
+  DOCUMENTO
+  VIDEO
+  ENLACE
+  PRESENTACION
+}
+
+model Notificacion {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  titulo    String
+  mensaje   String
+  leida     Boolean  @default(false)
+  creadoEn  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}

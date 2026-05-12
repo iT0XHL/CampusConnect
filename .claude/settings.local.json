@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\src\\\\middlewares\")",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\src\\\\controllers\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\src\\\\routes\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\src\\\\utils\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\src\\\\__tests__\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\prisma\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\nginx\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\Jose\\\\Desktop\\\\caso3\\\\.github\\\\workflows\")",
+      "Bash(npm install *)",
+      "Bash(npm test *)"
+    ]
+  }
+}
